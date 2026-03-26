@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>hey... stay a bit</title>
+
+<style>
+html, body {
+    margin: 0;
+    padding: 0;
+    background: black;
+    color: #c8ffc8;
+    font-family: "Courier New", monospace;
+    height: 100%;
+    overflow: hidden;
+}
+
+/* CRT wrapper with stronger curve */
+.crt {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    perspective: 800px;
+}
+
+.screen {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transform: rotateX(2deg) rotateY(-2deg) scale(1.03, 0.97);
+}
+
+/* Text */
+#text {
+    max-width: 800px;
+    font-size: 22px;
+    line-height: 1.6;
+    text-align: center;
+    padding: 20px;
+    text-shadow: 0 0 8px rgba(0,255,0,0.7);
+    transition: opacity 1s ease;
+}
+
+/* Cursor */
+.cursor {
+    animation: blink 1s infinite;
+}
+
+@keyframes blink {
+    0%,100% { opacity: 1; }
+    50% { opacity: 0; }
+}
+
+/* Scanlines */
+body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background: repeating-linear-gradient(
+        to bottom,
+        rgba(0,255,0,0.05) 0px,
+        rgba(0,255,0,0.05) 1px,
+        transparent 2px,
+        transparent 4px
+    );
+    pointer-events: none;
+}
+
+/* Flicker */
+body::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background: rgba(0,255,0,0.04);
+    animation: flicker 0.1s infinite;
+    pointer-events: none;
+}
+
+@keyframes flicker {
+    0% { opacity: 0.15; }
+    50% { opacity: 0.35; }
+    100% { opacity: 0.15; }
+}
+</style>
+
+</head>
+<body>
+
+<div class="crt">
+    <div class="screen">
+        <div id="text"></div>
+    </div>
+</div>
+
+<audio id="rain" loop>
+    <source src="https://www.soundjay.com/nature/sounds/rain-01.mp3" type="audio/mpeg">
+</audio>
+
+<script>
+const lines = [
+"hey... do you remember when things felt a little softer?",
+"what if this feeling isn’t forever, even if it really feels that way right now...",
+"what if you don’t actually want to go... just for the hurt to ease up a bit...",
+"what if your mind is being a little too hard on you today...",
+"what if there’s still a version of you out there who’s okay... even if you haven’t met them yet...",
+"what if things could shift, even in small, quiet ways...",
+"what if those tiny moments that feel a little better still matter...",
+"what if you don’t have to carry everything on your own...",
+"what if you matter more than you can see from here...",
+"what if staying—just for now—leaves room for something to change...",
+"",
+"i love you, i always have, and i always will."
+];
+
+let i = 0;
+let j = 0;
+let current = "";
+
+const el = document.getElementById("text");
+
+const typeSpeed = 35;
+const pause = 2500;
+
+function type() {
+    if (j < lines[i].length) {
+        current += lines[i][j];
+        el.innerHTML = current + '<span class="cursor">|</span>';
+        j++;
+        setTimeout(type, typeSpeed);
+    } else {
+        el.innerHTML = current;
+
+        // If last line → STOP forever
+        if (i === lines.length - 1) {
+            return;
+        }
+
+        setTimeout(fadeNext, pause);
+    }
+}
+
+function fadeNext() {
+    el.style.opacity = 0;
+
+    setTimeout(() => {
+        i++;
+        j = 0;
+        current = "";
+        el.innerHTML = "";
+        el.style.opacity = 1;
+        type();
+    }, 1000);
+}
+
+window.onload = () => {
+    type();
+};
+
+/* Fullscreen + rain on first click */
+document.body.addEventListener("click", () => {
+    document.documentElement.requestFullscreen?.();
+    document.getElementById("rain").play().catch(()=>{});
+}, { once: true });
+</script>
+
+</body>
+</html>
